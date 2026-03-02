@@ -1,292 +1,331 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta name="description" content="Executive summary of an enterprise integration modernization initiative: transitioning on-prem BizTalk to Azure Integration Services for high-volume EDI." />
-  <meta name="robots" content="index,follow" />
-  <title>Enterprise Integration Modernization | BizTalk &rarr; Azure Integration Services</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="description" content="Executive summary of an enterprise integration modernization initiative: transitioning on-prem BizTalk to Azure Integration Services for high-volume EDI." />
+<meta name="robots" content="index,follow" />
+<title>Enterprise Integration Modernization | BizTalk &rarr; Azure Integration Services</title>
 
-  <!-- Google Analytics (GA4 ENABLED) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-XXXXXXXXXX');
-  </script>
+<!-- Google Analytics (GA4 ENABLED) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-XXXXXXXXXX');
+</script>
 
-  <style>
-    :root{
-      --bg: #f4f7fb;
-      --panel: #ffffff;
-      --text: #1e293b;
-      --muted: #475569;
-      --faint: #64748b;
-      --line: #e2e8f0;
-      --shadow: 0 10px 30px rgba(0,0,0,.08);
-      --radius: 18px;
-      --radius2: 14px;
-      --max: 1100px;
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
-    }
+<style>
+:root{
+--bg:#f4f7fb;
+--panel:#ffffff;
+--text:#1e293b;
+--muted:#475569;
+--faint:#64748b;
+--line:#e2e8f0;
+--shadow:0 10px 30px rgba(0,0,0,.08);
+--radius:18px;
+--radius2:14px;
+--max:1100px;
+--mono:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+--sans:ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+}
 
-    * { box-sizing: border-box; }
-    html, body { height: 100%; }
+*{box-sizing:border-box}
+html,body{height:100%}
 
-    body{
-      margin: 0;
-      overflow-x: hidden;
-      font-family: var(--sans);
-      color: var(--text);
-      background:
-        radial-gradient(900px 500px at 15% 5%, rgba(59,130,246,.08), transparent 60%),
-        radial-gradient(700px 400px at 85% 10%, rgba(14,165,233,.06), transparent 55%),
-        linear-gradient(180deg, #f8fbff 0%, #eef4fa 100%);
-      line-height: 1.6;
-    }
+body{
+margin:0;
+overflow-x:hidden;
+font-family:var(--sans);
+color:var(--text);
+background:
+radial-gradient(900px 500px at 15% 5%, rgba(59,130,246,.08), transparent 60%),
+radial-gradient(700px 400px at 85% 10%, rgba(14,165,233,.06), transparent 55%),
+linear-gradient(180deg,#f8fbff 0%,#eef4fa 100%);
+line-height:1.6;
+}
 
-    a{ color:#2563eb; text-decoration:none; border-bottom:1px solid #cbd5e1; }
-    a:hover{ border-bottom-color:#2563eb; }
+.wrap{max-width:var(--max);margin:0 auto;padding:32px 28px 64px}
 
-    .wrap{
-      max-width: var(--max);
-      margin: 0 auto;
-      padding: 32px 28px 64px;
-    }
+.topbar{
+display:flex;
+justify-content:space-between;
+gap:12px;
+padding:10px 16px;
+border:1px solid var(--line);
+border-radius:999px;
+background:#fff;
+flex-wrap:wrap;
+}
 
-    header{ padding: 20px 0 10px; }
+.badge{
+padding:6px 12px;
+border-radius:999px;
+background:#f1f5f9;
+border:1px solid var(--line);
+font-size:13px;
+color:var(--muted);
+}
 
-    .topbar{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap: 12px;
-      padding: 10px 16px;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      background:#ffffff;
-      flex-wrap: wrap;
-    }
+.hero{
+margin-top:22px;
+padding:34px 30px;
+border-radius:var(--radius);
+background:#fff;
+border:1px solid var(--line);
+box-shadow:var(--shadow);
+}
 
-    .badge{
-      padding: 6px 12px;
-      border-radius: 999px;
-      background:#f1f5f9;
-      border:1px solid #e2e8f0;
-      font-size: 13px;
-      color: var(--muted);
-    }
+h1{
+font-size:clamp(30px,3vw,42px);
+margin:0 0 14px;
+font-weight:700;
+letter-spacing:-0.02em;
+}
 
-    .hero{
-      margin-top: 20px;
-      padding: 34px 30px;
-      border-radius: var(--radius);
-      background:#ffffff;
-      border:1px solid var(--line);
-      box-shadow: var(--shadow);
-    }
+.subtitle{margin:0 0 20px;color:var(--muted);max-width:75ch}
 
-    h1{
-      font-size: clamp(30px, 3vw, 42px);
-      margin: 0 0 14px;
-      font-weight:700;
-      letter-spacing:-0.02em;
-    }
+.chips{display:flex;flex-wrap:wrap;gap:10px}
 
-    .subtitle{
-      margin:0 0 20px;
-      color:var(--muted);
-      max-width: 75ch;
-    }
+.chip{
+font-size:13px;
+padding:8px 12px;
+border-radius:999px;
+background:#eef2ff;
+border:1px solid #dbeafe;
+color:#1e3a8a;
+}
 
-    .chips{
-      display:flex;
-      flex-wrap:wrap;
-      gap: 10px;
-    }
+.grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:22px;
+margin-top:26px;
+}
 
-    .chip{
-      font-size:13px;
-      padding:8px 12px;
-      border-radius:999px;
-      background:#eef2ff;
-      border:1px solid #dbeafe;
-      color:#1e3a8a;
-    }
+@media(max-width:950px){.grid{grid-template-columns:1fr}}
 
-    .grid{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 22px;
-      margin-top: 24px;
-    }
+.card{
+border-radius:var(--radius);
+background:#fff;
+border:1px solid var(--line);
+box-shadow:var(--shadow);
+}
 
-    @media (max-width: 950px){
-      .grid{ grid-template-columns:1fr; }
-    }
+.card .hd{
+padding:18px 22px;
+border-bottom:1px solid var(--line);
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
 
-    .card{
-      border-radius: var(--radius);
-      background:#ffffff;
-      border:1px solid var(--line);
-      box-shadow: var(--shadow);
-    }
+.card .bd{padding:20px 22px 24px}
 
-    .card .hd{
-      padding:18px 22px;
-      border-bottom:1px solid var(--line);
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-    }
+.muted{color:var(--muted)}
+.faint{color:var(--faint)}
 
-    .card .bd{
-      padding:20px 22px 24px;
-    }
+ul{margin:10px 0 0 18px;padding:0}
+li{margin:7px 0}
 
-    .muted{ color:var(--muted); }
-    .faint{ color:var(--faint); }
+.callout{
+margin-top:14px;
+padding:14px 16px;
+border-radius:var(--radius2);
+background:#eff6ff;
+border:1px solid #dbeafe;
+}
 
-    ul{ margin:10px 0 0 18px; padding:0; }
-    li{ margin:7px 0; }
+.kpis{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:14px;
+margin-top:16px;
+}
 
-    .callout{
-      margin-top:14px;
-      padding:14px 16px;
-      border-radius:var(--radius2);
-      background:#eff6ff;
-      border:1px solid #dbeafe;
-    }
+@media(max-width:900px){.kpis{grid-template-columns:1fr}}
 
-    .kpis{
-      display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:14px;
-      margin-top:16px;
-    }
+.kpi{
+padding:14px;
+border-radius:var(--radius2);
+background:#f8fafc;
+border:1px solid var(--line);
+}
 
-    @media (max-width:900px){
-      .kpis{ grid-template-columns:1fr; }
-    }
+.kpi .num{font-weight:700;font-size:20px;margin:0}
+.kpi .lbl{margin:4px 0 0;font-size:13px;color:var(--muted)}
 
-    .kpi{
-      padding:14px;
-      border-radius:var(--radius2);
-      background:#f8fafc;
-      border:1px solid var(--line);
-    }
+details{
+margin-top:16px;
+border:1px solid var(--line);
+border-radius:var(--radius2);
+padding:14px 16px;
+background:#f9fafb;
+}
 
-    .kpi .num{
-      font-weight:700;
-      font-size:20px;
-      margin:0;
-    }
+summary{cursor:pointer;font-weight:600}
 
-    .kpi .lbl{
-      margin:4px 0 0;
-      font-size:13px;
-      color:var(--muted);
-    }
+.split{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:16px;
+margin-top:14px;
+}
 
-    details{
-      margin-top:16px;
-      border:1px solid var(--line);
-      border-radius:var(--radius2);
-      padding:14px 16px;
-      background:#f9fafb;
-    }
+@media(max-width:700px){.split{grid-template-columns:1fr}}
 
-    summary{
-      cursor:pointer;
-      font-weight:600;
-    }
+.panel{
+padding:14px;
+border-radius:var(--radius2);
+background:#fff;
+border:1px solid var(--line);
+}
 
-    .split{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:16px;
-      margin-top:14px;
-    }
+.tag{
+display:inline-block;
+font-family:var(--mono);
+font-size:12px;
+padding:5px 8px;
+border-radius:8px;
+background:#f1f5f9;
+border:1px solid var(--line);
+margin:6px 6px 0 0;
+}
 
-    @media (max-width:700px){
-      .split{ grid-template-columns:1fr; }
-    }
-
-    .panel{
-      padding:14px;
-      border-radius:var(--radius2);
-      background:#ffffff;
-      border:1px solid var(--line);
-    }
-
-    .tag{
-      display:inline-block;
-      font-family:var(--mono);
-      font-size:12px;
-      padding:5px 8px;
-      border-radius:8px;
-      background:#f1f5f9;
-      border:1px solid var(--line);
-      margin:6px 6px 0 0;
-    }
-
-    footer{
-      margin-top:28px;
-      padding:20px;
-      border-radius:var(--radius);
-      background:#ffffff;
-      border:1px solid var(--line);
-      text-align:right;
-      font-size:13px;
-      color:var(--muted);
-    }
-  </style>
+footer{
+margin-top:30px;
+padding:20px;
+border-radius:var(--radius);
+background:#fff;
+border:1px solid var(--line);
+text-align:right;
+font-size:13px;
+color:var(--muted);
+}
+</style>
 </head>
 
 <body>
-  <div class="wrap">
+<div class="wrap">
 
-    <header>
-      <div class="topbar">
-        <div class="badge">Executive Project Brief</div>
-        <div class="badge">BizTalk &rarr; Azure Integration Services</div>
-        <div class="badge">Public GitHub Pages</div>
-      </div>
+<header>
+<div class="topbar">
+<div class="badge">Executive Project Brief</div>
+<div class="badge">BizTalk &rarr; Azure Integration Services</div>
+<div class="badge">Public GitHub Pages</div>
+</div>
 
-      <div class="hero">
-        <h1>Enterprise Integration Modernization</h1>
-        <p class="subtitle">
-          Led the end-to-end transition of a logistics company’s mission-critical integration platform
-          from on-prem Microsoft BizTalk Server to Azure Integration Services,
-          supporting high-volume inbound and outbound EDI transactions across trading partners,
-          warehouses, carriers, and ERP systems.
-        </p>
+<div class="hero">
+<h1>Enterprise Integration Modernization</h1>
+<p class="subtitle">
+Led the end-to-end transition of a logistics company’s mission-critical integration platform
+from on-prem Microsoft BizTalk Server to Azure Integration Services—supporting high-volume
+inbound and outbound EDI transactions across trading partners, warehouses, carriers, and ERP systems.
+</p>
 
-        <div class="chips">
-          <span class="chip">Program Leadership</span>
-          <span class="chip">EDI Operations</span>
-          <span class="chip">Cloud Architecture</span>
-          <span class="chip">Phased Cutover Strategy</span>
-          <span class="chip">Workforce Upskilling</span>
-        </div>
-      </div>
-    </header>
+<div class="chips">
+<span class="chip">Program Leadership</span>
+<span class="chip">EDI Operations</span>
+<span class="chip">Cloud Architecture</span>
+<span class="chip">Phased Cutover Strategy</span>
+<span class="chip">Workforce Upskilling</span>
+</div>
+</div>
+</header>
 
-    <footer>
-      Last updated:
-      <span id="lastUpdated"></span>
-    </footer>
+<main class="grid">
 
-  </div>
+<section class="card">
+<div class="hd">
+<h2>Business Context & Scope</h2>
+<div class="badge">EDI Modernization</div>
+</div>
+<div class="bd">
 
-  <script>
-    const el = document.getElementById('lastUpdated');
-    if (el) {
-      const d = new Date(document.lastModified);
-      el.textContent = d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
-    }
-  </script>
+<p class="muted">
+This initiative was an enterprise modernization effort—not a simple technology refresh.
+It required stakeholder alignment, architectural redesign, operational continuity planning,
+team transformation, and governance to support critical business operations.
+</p>
+
+<div class="callout">
+<strong>Why it mattered:</strong> The integration layer directly impacted operational continuity
+for inbound/outbound EDI and partner workflows. Migration prioritized reliability and safe cutovers.
+</div>
+
+<div class="kpis">
+<div class="kpi">
+<p class="num">~40%</p>
+<p class="lbl">Reduced infrastructure maintenance overhead</p>
+</div>
+<div class="kpi">
+<p class="num">100%</p>
+<p class="lbl">Integration staff upskilled to cloud model</p>
+</div>
+<div class="kpi">
+<p class="num">↓ MTTR</p>
+<p class="lbl">Improved monitoring & incident response</p>
+</div>
+</div>
+
+</div>
+</section>
+
+<aside class="card">
+<div class="hd">
+<h2>Architecture Transformation</h2>
+<div class="badge">Decoupled & Scalable</div>
+</div>
+<div class="bd">
+
+<div class="split">
+<div class="panel">
+<h3>Legacy (On-Prem BizTalk)</h3>
+<span class="tag">BizTalk Server</span>
+<span class="tag">SQL Tracking</span>
+<span class="tag">Orchestrations</span>
+<span class="tag">Pipelines & Maps</span>
+<ul>
+<li>Static infrastructure scaling</li>
+<li>Manual patching & hardware lifecycle</li>
+<li>Higher operational overhead</li>
+</ul>
+</div>
+
+<div class="panel">
+<h3>Target (Azure Integration Services)</h3>
+<span class="tag">Logic Apps</span>
+<span class="tag">Integration Accounts</span>
+<span class="tag">Azure Monitor</span>
+<span class="tag">RBAC</span>
+<ul>
+<li>Elastic scaling</li>
+<li>Cloud-native workflows</li>
+<li>Improved observability & DR posture</li>
+</ul>
+</div>
+</div>
+
+</div>
+</aside>
+
+</main>
+
+<footer>
+Last updated: <span id="lastUpdated"></span>
+</footer>
+
+</div>
+
+<script>
+const el=document.getElementById('lastUpdated');
+if(el){
+const d=new Date(document.lastModified);
+el.textContent=d.toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'});
+}
+</script>
+
 </body>
 </html>
