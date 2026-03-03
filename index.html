@@ -1,591 +1,98 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta name="description" content="Executive summary of an enterprise integration modernization initiative: transitioning on-prem BizTalk to Azure Integration Services for high-volume EDI." />
-  <meta name="robots" content="index,follow" />
-  <title>Enterprise Integration Modernization | BizTalk &rarr; Azure Integration Services</title>
-
-  <!-- Google Analytics (optional) -->
-  <!-- 1) Create a GA4 property, then replace G-XXXXXXXXXX below with your Measurement ID -->
-  <!-- 2) Remove this whole block if you don't want GA tracking -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-XXXXXXXXXX');
-  </script>
-
-  <style>
-    :root{
-      --bg: #f4f7fb;
-      --panel: #ffffff;
-      --panel2: #f9fbff;
-      --text: #1e293b;
-      --muted: #475569;
-      --faint: #64748b;
-      --line: #e2e8f0;
-      --shadow: 0 10px 30px rgba(0,0,0,.08);
-      --radius: 18px;
-      --radius2: 14px;
-      --max: 1020px;
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
-    }
-
-    * { box-sizing: border-box; }
-    html, body { height: 100%; }
-    body{
-      margin: 0;
-      overflow-x: hidden; 
-      font-family: var(--sans);
-      color: var(--text);
-      background:
-        radial-gradient(900px 500px at 15% 5%, rgba(59,130,246,.08), transparent 60%),
-        radial-gradient(700px 400px at 85% 10%, rgba(14,165,233,.06), transparent 55%),
-        linear-gradient(180deg, #f8fbff 0%, #eef4fa 100%);
-      line-height: 1.55;
-    }
-
-    a{ color: rgba(255,255,255,.92); text-decoration: none; border-bottom: 1px solid rgba(255,255,255,.35); }
-    a:hover{ border-bottom-color: rgba(255,255,255,.75); }
-
-    .wrap{ max-width: var(--max); margin: 0 auto; padding: 32px 28px 64px; }
-
-    header{
-      padding: 18px 0 10px;
-    }
-
-    .topbar{
-      display:flex;
-      flex-wrap: wrap;
-      align-items:center;
-      justify-content:space-between;
-      gap: 14px;
-      padding: 10px 14px;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      background: rgba(0,0,0,.15);
-      backdrop-filter: blur(10px);
-    }
-
-    .badge{
-      display:inline-flex;
-      align-items:center;
-      gap: 8px;
-      padding: 7px 12px;
-      border-radius: 999px;
-      background: rgba(255,255,255,.07);
-      border: 1px solid rgba(255,255,255,.12);
-      font-size: 13px;
-      color: var(--muted);
-      white-space: nowrap;
-    }
-
-    .dot{
-      width: 10px;
-      height: 10px;
-      border-radius: 999px;
-      background: radial-gradient(circle at 35% 35%, rgba(255,255,255,.85), rgba(255,255,255,.2) 45%, rgba(255,255,255,.05) 70%);
-      box-shadow: 0 0 0 3px rgba(99,102,241,.18);
-    }
-
-    .hero{
-      margin-top: 18px;
-      padding: 32px 28px;
-      border-radius: var(--radius);
-      background: #ffffff;
-      border: 1px solid #e5eaf1;
-      box-shadow: var(--shadow);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .hero:before{
-      content:"";
-      position:absolute;
-      inset:-40px -80px auto auto;
-      width: 260px;
-      height: 260px;
-      background: radial-gradient(circle at 30% 30%, rgba(14,165,233,.30), transparent 70%);
-      filter: blur(2px);
-      pointer-events:none;
-    }
-
-    h1{
-      font-size: clamp(26px, 3.2vw, 40px);
-      margin: 0 0 10px;
-      letter-spacing: -0.02em;
-    }
-
-    .subtitle{
-      margin: 0 0 14px;
-      color: var(--muted);
-      font-size: 15px;
-      max-width: 72ch;
-    }
-
-    .chips{
-      display:flex;
-      flex-wrap:wrap;
-      gap: 10px;
-      margin: 14px 0 0;
-    }
-
-    .chip{
-      font-size: 13px;
-      color: var(--muted);
-      padding: 8px 11px;
-      border-radius: 999px;
-      background: rgba(255,255,255,.06);
-      border: 1px solid rgba(255,255,255,.12);
-    }
-
-    .grid{
-      display:grid;
-      grid-template-columns: 1.05fr .95fr;
-      gap: 18px;
-      margin-top: 18px;
-    }
-
-    @media (max-width: 900px){
-      .grid{ grid-template-columns: 1fr; }
-      .topbar{ flex-wrap: wrap; justify-content:flex-start; }
-    }
-
-    .card{
-      border-radius: var(--radius);
-      background: #ffffff;
-      border: 1px solid #e5eaf1;
-      box-shadow: 0 10px 35px rgba(0,0,0,.25);
-      overflow:hidden;
-    }
-
-    .card .hd{
-      padding: 16px 18px;
-      border-bottom: 1px solid rgba(255,255,255,.10);
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap: 14px;
-    }
-
-    .card .hd h2{
-      margin: 0;
-      font-size: 16px;
-      letter-spacing: -0.01em;
-    }
-
-    .card .bd{
-      padding: 16px 18px 18px;
-    }
-
-    .muted{ color: var(--muted); }
-    .faint{ color: var(--faint); }
-
-    ul{
-      margin: 10px 0 0 18px;
-      padding: 0;
-      color: var(--muted);
-    }
-    li{ margin: 7px 0; }
-
-    .callout{
-  margin-top:14px;
-  padding:16px 18px;
-  border-radius:14px;
-  background:#F0F7FF;          /* stronger blue tint */
-  border-left:4px solid #2563EB;  /* strong accent bar */
-  border:1px solid #D0E2FF;
-  color:#1E293B;
-}
-
-    .kpis{
-      display:grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      margin-top: 12px;
-    }
-    @media (max-width: 900px){
-      .kpis{ grid-template-columns: 1fr; }
-    }
-
-    .kpi{
-      padding: 14px 14px;
-      border-radius: var(--radius2);
-      background: rgba(255,255,255,.06);
-      border: 1px solid rgba(255,255,255,.12);
-    }
-
-    .kpi .num{
-      font-size: 18px;
-      font-weight: 700;
-      letter-spacing: -0.01em;
-      margin: 0 0 3px;
-    }
-    .kpi .lbl{
-      margin: 0;
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    details{
-      border-radius: var(--radius2);
-      background: rgba(255,255,255,.04);
-      border: 1px solid rgba(255,255,255,.12);
-      padding: 12px 14px;
-      margin: 12px 0;
-    }
-
-    details[open]{
-      background: rgba(255,255,255,.06);
-      border-color: rgba(255,255,255,.16);
-    }
-
-    summary{
-      cursor: pointer;
-      list-style: none;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap: 12px;
-      font-weight: 700;
-      letter-spacing: -0.01em;
-    }
-
-    summary::-webkit-details-marker{ display:none; }
-
-    .chev{
-      width: 18px;
-      height: 18px;
-      flex: 0 0 auto;
-      opacity: .85;
-      transition: transform .18s ease;
-    }
-    details[open] .chev{ transform: rotate(180deg); }
-
-    .split{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-      margin-top: 10px;
-    }
-    @media (max-width: 700px){
-      .split{ grid-template-columns: 1fr; }
-    }
-
-    .panel{
-      border-radius: var(--radius2);
-      background: #ffffff;
-      border: 1px solid #e5eaf1;
-      padding: 14px 14px;
-    }
-
-    .panel h3{
-      margin: 0 0 8px;
-      font-size: 14px;
-      color: rgba(255,255,255,.90);
-    }
-
-    .tag{
-      display:inline-block;
-      font-family: var(--mono);
-      font-size: 12px;
-      padding: 5px 8px;
-      border-radius: 10px;
-      background: rgba(255,255,255,.06);
-      border: 1px solid rgba(255,255,255,.12);
-      color: rgba(255,255,255,.78);
-      margin: 6px 6px 0 0;
-      white-space: nowrap;
-    }
-
-    footer{
-      margin-top: 22px;
-      padding: 18px 18px;
-      border-radius: var(--radius);
-      background: rgba(0,0,0,.14);
-      border: 1px solid rgba(255,255,255,.12);
-      color: var(--muted);
-    }
-
-    .small{
-      font-size: 13px;
-      color: var(--faint);
-      margin: 8px 0 0;
-    }
-
-    .print-note{
-      display:none;
-    }
-
-    @media print{
-      body{ background: #fff; color:#111; }
-      a{ color:#111; border-bottom: 1px solid #999; }
-      .topbar, .chips, .chev { display:none !important; }
-      .card, .hero, footer{ box-shadow:none; border:1px solid #ddd; background:#fff; }
-      .muted, .faint{ color:#333; }
-      details{ background:#fff; border:1px solid #ddd; }
-      .print-note{ display:block; margin-top: 10px; color:#333; }
-    }
-  </style>
-</head>
-
-<body>
-  <div class="wrap">
-    <header>
-      <div class="topbar">
-        <div class="badge"><span class="dot" aria-hidden="true"></span> Executive Project Brief</div>
-        <div class="badge">BizTalk Server → Azure Integration Services</div>
-        <div class="badge">Public GitHub Pages</div>
-      </div>
-
-      <div class="hero" role="banner">
-        <h1>Enterprise Integration Modernization</h1>
-        <p class="subtitle">
-          Led the end-to-end transition of a logistics company’s mission-critical integration platform
-          from an on-premises Microsoft BizTalk Server environment to a cloud-based architecture using
-          Azure Integration Accounts and Azure Integration Services—supporting high-volume inbound and outbound EDI
-          transactions across trading partners, warehouses, carriers, and ERP systems.
-        </p>
-        <div class="chips" aria-label="Key themes">
-          <span class="chip">Program leadership & governance</span>
-          <span class="chip">EDI / trading partner operations</span>
-          <span class="chip">Cloud architecture redesign</span>
-          <span class="chip">Operational continuity (phased cutover)</span>
-          <span class="chip">Workforce upskilling & change management</span>
-        </div>
-        <p class="small print-note">
-          Note: Collapsible sections are expanded in most print views. This page is optimized for quick executive review.
-        </p>
-      </div>
-    </header>
-
-    <main class="grid" role="main">
-      <!-- LEFT COLUMN -->
-      <section class="card" aria-label="Context and highlights">
-        <div class="hd">
-          <h2>Business Context & Scope</h2>
-          <div class="badge" title="High-level scope">EDI modernization</div>
-        </div>
-        <div class="bd">
-          <p class="muted" style="margin:0;">
-            This initiative was an enterprise modernization effort—not a simple technology refresh. It required
-            stakeholder alignment, architectural redesign, operational continuity planning, team transformation,
-            and a long-term governance model to support critical business operations (shipment visibility, billing accuracy,
-            and partner connectivity).
-          </p>
-
-          <div class="callout">
-            <strong>Why it mattered:</strong>
-            The integration layer directly impacted operational continuity for inbound/outbound EDI and partner workflows.
-            The migration approach prioritized reliability, fidelity of transformations, and business-safe cutovers.
-          </div>
-
-          <div class="kpis" aria-label="Measurable outcomes">
-            <div class="kpi">
-              <p class="num">~40%</p>
-              <p class="lbl">Reduced infrastructure maintenance overhead</p>
-            </div>
-            <div class="kpi">
-              <p class="num">100%</p>
-              <p class="lbl">Integration support staff upskilled to cloud support</p>
-            </div>
-            <div class="kpi">
-              <p class="num">↓ MTTR</p>
-              <p class="lbl">Improved monitoring & faster incident resolution</p>
-            </div>
-          </div>
-
-          <details>
-            <summary>
-              Leadership & Program Management
-              <svg class="chev" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </summary>
-
-            <div class="split" style="margin-top:12px;">
-              <div class="panel">
-                <h3>Strategic Planning & Governance</h3>
-                <ul>
-                  <li>Built a multi-phase roadmap to migrate from on-prem BizTalk to Azure services.</li>
-                  <li>Mapped dependencies across EDI interfaces, internal apps, and partner endpoints.</li>
-                  <li>Established executive reporting cadence and risk mitigation plans.</li>
-                  <li>Defined KPIs (uptime, transaction latency, error handling) for program success.</li>
-                </ul>
-              </div>
-
-              <div class="panel">
-                <h3>Operational Continuity & Risk Management</h3>
-                <ul>
-                  <li>Used phased migration to avoid disruption to shipment and billing systems.</li>
-                  <li>Ran parallel environments to validate message fidelity and transformation accuracy.</li>
-                  <li>Led cutover planning with rollback contingencies and transition windows.</li>
-                  <li>Ensured 24/7 support readiness during high-risk transition periods.</li>
-                </ul>
-              </div>
-            </div>
-
-            <div class="panel" style="margin-top:14px;">
-              <h3>Stakeholder & Cross-Functional Coordination</h3>
-              <ul>
-                <li>Coordinated across infrastructure, security, compliance, and application teams.</li>
-                <li>Managed vendor relationships and third-party EDI trading partners.</li>
-                <li>Translated technical change into business impact for operations leadership.</li>
-              </ul>
-            </div>
-          </details>
-
-          <details>
-            <summary>
-              Workforce Transition & Organizational Change
-              <svg class="chev" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </summary>
-
-            <p class="muted" style="margin:12px 0 0;">
-              A critical success factor was transitioning the BizTalk operations team to a cloud-native integration model.
-              The focus was capability building, ownership, and a sustainable support posture.
-            </p>
-
-            <div class="split" style="margin-top:12px;">
-              <div class="panel">
-                <h3>Key Actions</h3>
-                <ul>
-                  <li>Conducted skill assessments and identified training gaps.</li>
-                  <li>Developed structured Azure upskilling paths aligned to roles.</li>
-                  <li>Ran hands-on migration sprints to build competency through delivery.</li>
-                  <li>Rewrote operational runbooks for cloud monitoring and response.</li>
-                </ul>
-              </div>
-
-              <div class="panel">
-                <h3>Cultural Shift</h3>
-                <ul>
-                  <li>Server maintenance → cloud service management</li>
-                  <li>Reactive troubleshooting → proactive monitoring</li>
-                  <li>Siloed ownership → shared integration ecosystem support</li>
-                </ul>
-              </div>
-            </div>
-
-            <div class="panel" style="margin-top:14px;">
-              <h3>Support Capabilities at Completion</h3>
-              <ul>
-                <li>Integration workflow operations and troubleshooting</li>
-                <li>Cloud security configuration and access governance</li>
-                <li>Monitoring, alerting, and diagnostics pipelines</li>
-                <li>Endpoint / partner connectivity triage and onboarding</li>
-              </ul>
-            </div>
-          </details>
-
-        </div>
-      </section>
-
-      <!-- RIGHT COLUMN -->
-      <aside class="card" aria-label="Architecture overview">
-        <div class="hd">
-          <h2>Architecture Transformation</h2>
-          <div class="badge" title="Modernization theme">Decoupled & scalable</div>
-        </div>
-        <div class="bd">
-
-          <p class="muted" style="margin:0;">
-            The redesign moved from a BizTalk-centric, static infrastructure to an Azure Integration Services model
-            emphasizing decoupled workflows, elastic scaling, centralized monitoring, and improved disaster recovery posture.
-          </p>
-
-          <div class="split" style="margin-top:14px;">
-            <div class="panel" aria-label="Legacy environment">
-              <h3>Legacy (On-Prem BizTalk)</h3>
-              <span class="tag">BizTalk Server</span>
-              <span class="tag">SQL Server tracking/persistence</span>
-              <span class="tag">Custom orchestrations</span>
-              <span class="tag">Pipelines & maps</span>
-              <span class="tag">Manual scaling/patching</span>
-              <ul>
-                <li>Handling EDI X12 and XML transformations</li>
-                <li>Static capacity with limited elasticity</li>
-                <li>Higher operational burden (hardware lifecycle, patching)</li>
-              </ul>
-            </div>
-
-            <div class="panel" aria-label="Cloud architecture">
-              <h3>Target (Azure Integration Services)</h3>
-              <span class="tag">Logic Apps</span>
-              <span class="tag">Integration Accounts</span>
-              <span class="tag">Azure Storage / Azure SQL</span>
-              <span class="tag">Azure Monitor</span>
-              <span class="tag">RBAC</span>
-              <ul>
-                <li>Workflow orchestration via cloud-native services</li>
-                <li>Partner mgmt: schemas, maps, agreements, trading partners</li>
-                <li>Improved observability, diagnostics, and DR readiness</li>
-              </ul>
-            </div>
-          </div>
-
-          <details>
-            <summary>
-              Architectural Improvements Delivered
-              <svg class="chev" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </summary>
-
-            <div class="panel" style="margin-top:12px;">
-              <ul>
-                <li>Decoupled, event-driven workflows to reduce tight coupling between systems.</li>
-                <li>Elastic scalability to handle peak transaction loads without manual resizing.</li>
-                <li>Centralized monitoring and diagnostics to reduce blind spots and improve MTTR.</li>
-                <li>Improved disaster recovery posture and reduced data center dependency risk.</li>
-                <li>Reduced hardware lifecycle risk and lowered operational maintenance overhead.</li>
-              </ul>
-            </div>
-          </details>
-
-          <details>
-            <summary>
-              Technical Depth (What this required)
-              <svg class="chev" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </summary>
-
-            <div class="panel" style="margin-top:12px;">
-              <ul>
-                <li>Message transformations and mapping design (XSLT/maps) with high fidelity validation.</li>
-                <li>EDI standards, validation rules, and partner-specific constraints.</li>
-                <li>System interdependencies and safe cutover sequencing for business continuity.</li>
-                <li>Authentication and endpoint security patterns aligned to governance.</li>
-                <li>High-availability design and monitoring-first operational posture.</li>
-              </ul>
-            </div>
-          </details>
-
-        </div>
-      </aside>
-    </main>
-
-    <footer role="contentinfo">
-      <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between;">
-        <div class="badge">Last updated: <span id="lastUpdated" style="color:rgba(255,255,255,.82); margin-left:6px;"></span></div>
-      </div>
-    </footer>
-  </div>
-
-  <script>
-    // Displays the page's last modified date (helpful for interview follow-ups)
-    const el = document.getElementById('lastUpdated');
-    if (el) {
-      const d = new Date(document.lastModified);
-      el.textContent = d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
-    }
-  </script>
-</body>
-</html>
+<h2 style='margin-top:8.0pt;margin-right:0in;margin-bottom:4.0pt;margin-left:0in;line-height:115%;font-size:21px;font-family:"Calibri Light",sans-serif;color:#2F5496;font-weight:normal;'>Enterprise Integration Modernization: Transition from On-Prem BizTalk to Azure Integration Services</h2>
+<p style='margin:0in;font-size:16px;font-family:"Calibri",sans-serif;'>I led the end-to-end transition of a logistics company&rsquo;s mission-critical integration platform from an on-premises <strong>Microsoft BizTalk Server</strong> environment to a cloud-based architecture leveraging <strong>Azure Integration Accounts and Azure Integration Services</strong>. The initiative supported high-volume inbound and outbound EDI transactions across trading partners, warehouses, carriers, and ERP systems &mdash; directly impacting shipment visibility, billing accuracy, and operational continuity.</p>
+<p style='margin:0in;font-size:16px;font-family:"Calibri",sans-serif;'>This was not simply a technology refresh. It was an enterprise modernization initiative requiring:</p>
+<ul style="list-style-type: disc;">
+    <li>Strategic planning and stakeholder alignment</li>
+    <li>Architectural redesign of integration workflows</li>
+    <li>Operational continuity planning</li>
+    <li>Team restructuring and skills transformation</li>
+    <li>Governance and long-term support model design</li>
+</ul>
+<h2 style='margin-top:8.0pt;margin-right:0in;margin-bottom:4.0pt;margin-left:0in;line-height:115%;font-size:21px;font-family:"Calibri Light",sans-serif;color:#2F5496;font-weight:normal;'>Leadership &amp; Program Management Responsibilities</h2>
+<p style='margin:0in;font-size:16px;font-family:"Calibri",sans-serif;'><strong>1. Strategic Planning &amp; Governance</strong></p>
+<ul style="list-style-type: disc;">
+    <li>Developed the multi-phase migration roadmap from on-prem BizTalk to Azure.</li>
+    <li>Conducted dependency mapping across all EDI interfaces, internal applications, and partner endpoints.</li>
+    <li>Established executive reporting cadence and risk mitigation plans.</li>
+    <li>Defined KPIs for uptime, transaction latency, and error handling.</li>
+</ul>
+<p style='margin:0in;font-size:16px;font-family:"Calibri",sans-serif;'><strong>2. Operational Continuity &amp; Risk Management</strong></p>
+<ul style="list-style-type: disc;">
+    <li>Implemented a phased migration strategy to avoid disruption to shipment and billing systems.</li>
+    <li>Built parallel run environments to validate message fidelity and transformation accuracy.</li>
+    <li>Led structured cutover planning with rollback contingencies.</li>
+    <li>Ensured 24/7 support readiness during transition windows.</li>
+</ul>
+<p style='margin:0in;font-size:16px;font-family:"Calibri",sans-serif;'><strong>3. Stakeholder &amp; Cross-Functional Coordination</strong></p>
+<ul style="list-style-type: disc;">
+    <li>Coordinated with infrastructure, security, compliance, and application teams.</li>
+    <li>Managed vendor relationships and third-party EDI partners.</li>
+    <li>Communicated technical changes in business terms to operations leadership.</li>
+</ul>
+<h2 style='margin-top:8.0pt;margin-right:0in;margin-bottom:4.0pt;margin-left:0in;line-height:115%;font-size:21px;font-family:"Calibri Light",sans-serif;color:#2F5496;font-weight:normal;'>Technical Architecture Transformation</h2>
+<p style='margin:0in;font-size:16px;font-family:"Calibri",sans-serif;'><strong>Legacy Environment (On-Prem BizTalk)</strong></p>
+<ul style="list-style-type: disc;">
+    <li>BizTalk Server handling EDI X12 and XML transformations</li>
+    <li>SQL Server backend for tracking and persistence</li>
+    <li>Custom orchestrations and pipelines</li>
+    <li>Static infrastructure with limited scalability</li>
+    <li>Manual scaling and patching requirements</li>
+</ul>
+<p style='margin:0in;font-size:16px;font-family:"Calibri",sans-serif;'><strong>Cloud Architecture (Azure Integration Services)</strong></p>
+<p style='margin:0in;font-size:16px;font-family:"Calibri",sans-serif;'><strong>Core Components Implemented:</strong></p>
+<ul style="list-style-type: disc;">
+    <li>Azure Logic Apps (workflow orchestration)</li>
+    <li>Azure Integration Accounts (EDI schemas, maps, trading partner management)</li>
+    <li>Azure Storage &amp; Azure SQL</li>
+    <li>Azure Monitor</li>
+    <li>Role-based access control (RBAC) and cloud security governance</li>
+</ul>
+<p style='margin:0in;font-size:16px;font-family:"Calibri",sans-serif;'><strong>Architectural Improvements</strong></p>
+<ul style="list-style-type: disc;">
+    <li>Decoupled, event-driven workflows</li>
+    <li>Elastic scalability for peak transaction loads</li>
+    <li>Centralized monitoring and diagnostics</li>
+    <li>Improved disaster recovery posture</li>
+    <li>Reduced hardware lifecycle risk</li>
+</ul>
+<p style='margin:0in;font-size:16px;font-family:"Calibri",sans-serif;'>This redesign required deep knowledge of:</p>
+<ul style="list-style-type: disc;">
+    <li>Message transformations (XSLT, maps)</li>
+    <li>EDI standards and validation</li>
+    <li>System interdependencies</li>
+    <li>Authentication &amp; endpoint security</li>
+    <li>High-availability design principles</li>
+</ul>
+<h2 style='margin-top:8.0pt;margin-right:0in;margin-bottom:4.0pt;margin-left:0in;line-height:115%;font-size:21px;font-family:"Calibri Light",sans-serif;color:#2F5496;font-weight:normal;'>Workforce Transition &amp; Organizational Change</h2>
+<p style='margin:0in;font-size:16px;font-family:"Calibri",sans-serif;'>One of the most critical aspects of the project was transitioning the <strong>BizTalk operations team</strong> to support a cloud-native integration model.</p>
+<p style='margin:0in;font-size:16px;font-family:"Calibri",sans-serif;'><strong>Key Actions:</strong></p>
+<ul style="list-style-type: disc;">
+    <li>Conducted <u>skill assessments</u> across the team</li>
+    <li>Developed structured Azure <u>upskilling paths</u></li>
+    <li>Implemented <u>hands-on migration sprints</u> to build competency</li>
+    <li>Re-defined <u>operational runbooks</u> for cloud monitoring</li>
+</ul>
+<p style='margin:0in;font-size:16px;font-family:"Calibri",sans-serif;'><strong>Cultural Shift:</strong></p>
+<ul style="list-style-type: disc;">
+    <li>From server maintenance &rarr; cloud service management</li>
+    <li>From reactive troubleshooting &rarr; proactive monitoring</li>
+    <li>From siloed application ownership &rarr; shared integration ecosystem support</li>
+</ul>
+<p style='margin:0in;font-size:16px;font-family:"Calibri",sans-serif;'>By project completion, the team was fully capable of supporting:</p>
+<ul style="list-style-type: disc;">
+    <li>Integration workflows</li>
+    <li>Cloud security configurations</li>
+    <li>Monitoring and alerting pipelines</li>
+    <li>Endpoint troubleshooting</li>
+    <li>Trading partner onboarding</li>
+</ul>
+<p style='margin:0in;font-size:16px;font-family:"Calibri",sans-serif;'><strong>Measurable Outcomes</strong></p>
+<ul style="list-style-type: disc;">
+    <li>Reduced infrastructure maintenance overhead by ~40%</li>
+    <li>Improved scalability during peak transaction cycles</li>
+    <li>Enhanced monitoring visibility across all interfaces</li>
+    <li>Improved disaster recovery capabilities</li>
+    <li>Upskilled 100% of integration support staff</li>
+    <li>Reduced mean time to resolution (MTTR)</li>
+</ul>
+<p style='margin:0in;font-size:16px;font-family:"Calibri",sans-serif;'>&nbsp;</p>
